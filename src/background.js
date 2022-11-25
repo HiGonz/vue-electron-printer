@@ -8,6 +8,7 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import axios from 'axios'
 const {PosPrinter} = require("electron-pos-printer");
 import moment from 'moment'
+const { autoUpdater } = require('electron-updater');
 
 axios.defaults.baseURL = 'http://localhost:3333/api/v2/'
 axios.defaults.headers.common['accept-encoding'] = '*'
@@ -61,6 +62,10 @@ ipcMain.on('SET_PRINTER', (event, printer) => {
   event.reply('SET_PRINTER', { printer });
 });
 
+ipcMain.on('app_version', (event) => {
+  event.sender.send('app_version', { version: app.getVersion() });
+});
+
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
@@ -89,6 +94,10 @@ async function createWindow() {
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
   }
+
+  win.once('ready-to-show', () => {
+    autoUpdater.checkForUpdatesAndNotify();
+  });
 
 }
 
@@ -298,3 +307,10 @@ if (isDevelopment) {
     })
   }
 }
+
+autoUpdater.on('update-available', () => {
+  win.webContents.send('update_available');
+});
+autoUpdater.on('update-downloaded', () => {
+  win.webContents.send('update_downloaded');
+});
