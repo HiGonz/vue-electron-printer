@@ -4,7 +4,7 @@ stages:
   - Release
 
 build:
-  stage: build
+  stage: Build
   image: electronuserland/builder:wine
   before_script:
     - npm install
@@ -31,7 +31,7 @@ variables:
 upload:
   stage: Upload
   needs:
-    - job: build
+    - job: Build
       artifacts: true
   rules:
     - if: $CI_COMMIT_TAG
