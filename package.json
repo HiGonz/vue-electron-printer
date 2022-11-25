@@ -1,17 +1,19 @@
 {
   "name": "xticket-vue-printer",
+  "productName": "Xticket Printer",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "electron:build": "vue-cli-service electron:build",
     "dev": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
-    "postuninstall": "electron-builder install-app-deps"
+    "postuninstall": "electron-builder install-app-deps",
+    "build": "electron-builder build --win --publish never",
+    "deploy": "electron-builder build --win --publish always"
   },
-  "main": "background.js",
+  "main": "./src/background.js",
   "dependencies": {
     "@electron/remote": "^2.0.8",
     "autoprefixer": "^10",
@@ -61,5 +63,18 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url" : "git+https://gitlab.com/higonz/xticket-vue-printer.git",
+    "release": "latest"
+  },
+  "build": {
+    "appId": "com.xticket.PrintService",
+    "artifactName": "${productName}-${version}.${ext}",
+    "publish": {
+    "provider": "generic",
+    "url": "https://gitlab.com/api/v4/projects/41372921/jobs/artifacts/master/raw/dist?job=build"
+    }
+  }
 }
