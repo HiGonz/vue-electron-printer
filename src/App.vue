@@ -1,67 +1,118 @@
 <template>
   <div id="app">
-       <h1>Test printer</h1>
-    Node.js <span id="node-version"></span> - 
-    Chromium <span id="chrome-version"></span> - 
-    Electron <span id="electron-version"></span>.
-	
-	<div>
-	
-	<form name>
-  <p>List of printers:</p>
-  
-  <el-radio-group v-model="selectedPrinter">
-    <el-radio v-for="(printer, index) in printerList" :key="'printer-'+index" :label="index">{{ printer.displayName }}</el-radio>
-  </el-radio-group>
+    <div>
+      <form name>
+        <h1
+          class="
+            mt-4
+            text-xl
+            font-semibold
+            text-center text-gray-800
+            capitalize
+            lg:text-4xl
+            dark:text-white
+          "
+        >
+          Lista de Impresoras
+        </h1>
 
-  <br>  
+        <div>
+          <el-radio-group class="mt-6 space-y-2" v-model="selectedPrinter">
+            <div
+              v-for="(printer, index) in printerList"
+              :key="'printer-' + index"
+              @click="selectedPrinter = printer.name"
+              class="
+                flex
+                items-center
+                justify-between
+                max-w-2xl
+                px-8
+                py-1
+                mx-auto
+                border
+                cursor-pointer
+                rounded-xl
+                border-gray-700
+              "
+            >
+                <el-radio :label="printer.name" border class="hidden">
+                </el-radio>
+              <div class="flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    :class="selectedPrinter === printer.name ? 'text-blue-500' : 'text-gray-700'"
+                    class="w-5 h-5 sm:h-9 sm:w-9"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clip-rule="evenodd"
+                    /></svg>
+                <div class="flex flex-col items-center mx-5 space-y-1">
+                  <h2
+                    class="text-sm font-medium text-gray-700 dark:text-gray-200"
+                  >
+                    {{ printer.name }}
+                  </h2>
+                </div>
+              </div>
+              <h2
+                class="text-sm font-semibold text-gray-500 dark:text-gray-300"
+              >
+               {{ printer.options['printer-location'] }}
+              </h2>
+            </div>
+          </el-radio-group>
+        </div>
+      </form>
+    </div>
 
-  <p>Width</p>
-  <input type="radio" id="w1" name="width" value="140px">
-  <label for="w1">140px</label><br>
-  
-  <input type="radio" id="w2" name="width" value="170px">
-  <label for="w2">170px</label><br>
-  
-  <input type="radio" id="w3" name="width" value="200px">
-  <label for="w3">200px</label><br>
-  
-  <input type="radio" id="w4" name="width" value="250px">
-  <label for="w4">250px</label><br>
-  
-  <input type="radio" id="w5" name="width" value="300px">
-  <label for="w5">300px</label><br>
-  
- 
-</form>
-	
-	</div>
-	
-	<br>
-<input onclick="print()" type="button" value="printer test"/>
-<br>
-<br>
-<br>
+    <br />
+    <input onclick="print()" type="button" value="printer test" />
+    <br />
+    <br />
+    <br />
   </div>
 </template>
 <script>
 export default {
-  name: 'App',
-  data () {
+  name: "App",
+  data() {
     return {
       printerList: [],
-      selectedPrinter: 0
-    }
+      selectedPrinter: '',
+    };
   },
-  mounted(){
-    window.ipc.send('READ_PRINTERS');
-    window.ipc.on('READ_PRINTERS', (payload) => {
+  mounted() {
+    window.ipc.send("READ_PRINTERS");
+    window.ipc.on("READ_PRINTERS", (payload) => {
       this.printerList = payload.content;
+      this.selectedPrinter = payload.selectedPrinter;
     });
+    window.ipc.on("SET_PRINTER", (payload) => {
+      if(payload.printer){
+        this.$notify({
+          title: 'Impresora cambiada',
+          message: 'Se ha establecido la impresora ' + payload.printer,
+          type: 'success'
+        });
+      }
+    })
+  },
+  watch: {
+    selectedPrinter: {
+      handler(newValue) {
+        window.ipc.send("SET_PRINTER", newValue);
+      },
+      deep: true
+    }
   },
   methods: {
   },
-}
+};
 </script>
 
 <style>
