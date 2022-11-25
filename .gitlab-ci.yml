@@ -4,7 +4,7 @@ stages:
   - Release
 
 build:
-  stage: Build
+  stage: build
   image: electronuserland/builder:wine
   before_script:
     - npm install
