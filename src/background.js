@@ -2,7 +2,7 @@
 /* eslint-disable no-undef */
 'use strict'
 
-import { app, protocol, BrowserWindow, dialog, net } from 'electron'
+import { app, protocol, BrowserWindow, dialog, Tray, nativeImage, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import axios from 'axios'
@@ -25,6 +25,29 @@ const schema = {
 };
 
 const store = new Store({schema});
+
+let tray = null
+function createTray () {
+  const icon = path.join(__static, 'printer.png') // required.
+  const trayicon = nativeImage.createFromPath(icon)
+  tray = new Tray(trayicon.resize({ width: 16 }))
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Configuración',
+      click: () => {
+        createWindow()
+      }
+    },
+    {
+      label: 'Cerrar',
+      click: () => {
+        app.quit() // actually quit the app.
+      }
+    },
+  ])
+
+  tray.setContextMenu(contextMenu)
+}
 
 const formatCurrency = (value) => {
   return value.toLocaleString('es-MX', {
@@ -72,6 +95,9 @@ protocol.registerSchemesAsPrivileged([
 ])
 
 async function createWindow() {
+  if (!tray) {
+    createTray()
+  }
   // Create the browser window.
   win = new BrowserWindow({
     width: 800,
@@ -107,9 +133,6 @@ async function createWindow() {
 app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
 })
 
 
@@ -427,7 +450,7 @@ function printEmail(type, dataPrint) {
        });
 }
 
-function printSale(type, dataPrint) {
+async function printSale(type, dataPrint) {
   const options = {
     preview: false,
     margin: '0 0 0 0',
@@ -437,6 +460,7 @@ function printSale(type, dataPrint) {
     pageSize: '80mm',
     silent: true
   }
+  let promise = new Promise(function(resolve, reject){
     const data = [
       {
           type: 'image',
@@ -573,14 +597,27 @@ function printSale(type, dataPrint) {
         style: {textAlign: 'center', fontSize: "10px", marginTop: "15px"}
       },
       )
-console.log(data)
-    PosPrinter.print(data, options)
+      
+      resolve(data)
+});
+
+function setIntervalLimited(callback, interval, x) {
+
+  for (var i = 0; i < x; i++) {
+      setTimeout(callback, i * interval);
+  }
+
+}
+    promise.then((data) => {
+      setIntervalLimited(function () {
+        PosPrinter.print(data, options)
       .then()
       .catch((error) => {
          console.error({error});
        });
-
-       if(!dataPrint.debtPayment){
+    }, 500, 2);
+    }).then(() => {
+      if(!dataPrint.debtPayment){
         for (const ticket of dataPrint.tickets) {
           let dataTicket = [];
           dataTicket.push(
@@ -633,8 +670,9 @@ console.log(data)
         {
           type: 'qrCode',
           value: ticket.sku,
-          height: 155,
-          width: 155
+          height: 190,
+          width: 190,
+          style: { margin: '0 0 0 100px' }
         },
           {
             type: 'text',                                       // 'text' | 'barCode' | 'qrCode' | 'image' | 'table
@@ -662,10 +700,14 @@ console.log(data)
             style: {textAlign: 'center', fontSize: "10px", marginTop: "15px"}
           })
     
-      PosPrinter.print(dataTicket, options)
+          setIntervalLimited(function () {
+            PosPrinter.print(dataTicket, options)
       .then()
       .catch((error) => {
          console.error({error});
-       });}
+       })
+        }, 500, 1);
+      }
        }
+    })
 }

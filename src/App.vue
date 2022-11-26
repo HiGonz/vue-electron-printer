@@ -71,7 +71,6 @@
     </div>
 
     <br />
-    <input onclick="print()" type="button" value="printer test" />
     <br />
     <br />
     <br />

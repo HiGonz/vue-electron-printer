@@ -1,0 +1,6 @@
+appId: com.xticket.PrintService
+artifactName: ${productName}-${version}.${ext}
+publish:
+  provider: generic
+  url: https://gitlab.com/api/v4/projects/41372921/jobs/artifacts/master/raw/dist?job=build
+  token: glpat-9vE4_6Fy8Bsr-1V-88FH
