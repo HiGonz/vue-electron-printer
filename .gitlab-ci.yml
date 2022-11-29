@@ -40,7 +40,7 @@ upload-job:
   script:
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "./dist/${WIN_BINARY}" "${PACKAGE_REGISTRY_URL}/${WIN_BINARY}"'
 
-auto-release-master-job:
+release-job:
   stage: release-job
   image: registry.gitlab.com/gitlab-org/release-cli
   needs:
