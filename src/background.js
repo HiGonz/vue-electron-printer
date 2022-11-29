@@ -7,55 +7,6 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const {PosPrinter} = require("electron-pos-printer");
 import moment from 'moment'
-const { autoUpdater } = require('electron-updater');
-
-autoUpdater.requestHeaders = { "PRIVATE-TOKEN": "glpat-_w2dxuKz3ZzBz3fUZmzR" };
-autoUpdater.autoDownload = true;
-
-autoUpdater.setFeedURL({
-    provider: "generic",
-    channel: "latest",
-    url: "http://gitlab.com/api/v4/projects/41372921/jobs/artifacts/master/raw/dist_electron/?job=build"
-});
-
-autoUpdater.on('checking-for-update', function () {
-    sendStatusToWindow('Checking for update...');
-});
-
-autoUpdater.on('update-available', function (info) {
-    sendStatusToWindow('Update available.');
-});
-
-autoUpdater.on('update-not-available', function (info) {
-    sendStatusToWindow('Update not available.');
-});
-
-autoUpdater.on('error', function (err) {
-    sendStatusToWindow('Error in auto-updater.');
-});
-
-autoUpdater.on('download-progress', function (progressObj) {
-    let log_message = "Download speed: " + progressObj.bytesPerSecond;
-    log_message = log_message + ' - Downloaded ' + parseInt(progressObj.percent) + '%';
-    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
-    sendStatusToWindow(log_message);
-});
-
-autoUpdater.on('update-downloaded', function (info) {
-    sendStatusToWindow('Update downloaded; will install in 1 seconds');
-});
-
-autoUpdater.on('update-downloaded', function (info) {
-    setTimeout(function () {
-        autoUpdater.quitAndInstall();
-    }, 1000);
-});
-
-autoUpdater.checkForUpdates();
-
-function sendStatusToWindow(message) {
-    console.log(message);
-}
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -202,10 +153,8 @@ if (!gotTheLock) {
           );
           const protocolUrl = argv[argv.length-1];
           const url = protocolUrl.replace('xticket-printer://', '');
-          // type=sale&data=%7B%22folios%22:[[4776]],%22via%22:%22SMS%22,%22member%22:%7B%22status%22:201,%22user%22:%7B%22id%22:22,%22first_name%22:%22Hiram%22,%22last_name%22:%22Gonz%C3%A1lez%22,%22phone_number%22:%22+52%20871%20141%205072%22,%22email%22:%22hiramglz92@gmail.com%22,%22email_verified%22:%22false%22,%22created_at%22:%222022-08-13%2012:32:40%22,%22updated_at%22:%222022-09-15%2017:49:04%22,%22token%22:null,%22status%22:1%7D,%22customer%22:%7B%22id%22:4,%22created_at%22:%222022-08-13%2012:32:40%22,%22updated_at%22:%222022-08-13%2012:32:40%22,%22user_id%22:22%7D%7D,%22area%22:%22General%22,%22eventTitle%22:%22Baile%20Romance%20y%20Adios%20al%202022%22,%22eventAlias%22:%22Los%20Yonic's%20Zamacona%20Jr.%22,%22total%22:300,%22subtotal%22:300,%22commission%22:0,%22descuento%22:0,%22phone_number%22:null%7D/
           const urlParams = new URLSearchParams(url);
           const type = urlParams.get('type');
-          // parse data remove last slash
           const dataPrint = JSON.parse(urlParams.get('data').slice(0, -1));
           if(type === 'saleSMS') {
             printSMS(type, dataPrint);
