@@ -1,10 +1,10 @@
 stages:
-  - Build
-  - Upload
-  - Release
+  - build
+  - upload
+  - release
 
 build:
-  stage: Build
+  stage: build
   image: electronuserland/builder:wine
   before_script:
     - npm install
@@ -29,7 +29,7 @@ variables:
   PACKAGE_REGISTRY_URL: '${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${APPNAME}/${VERSION}'
 
 upload:
-  stage: Upload
+  stage: upload
   needs:
     - job: build
       artifacts: true
@@ -47,14 +47,14 @@ auto-release-master:
       artifacts: true
     - job: upload
       artifacts: true
-  stage: Release
+  stage: release
   rules:
     - if: $CI_COMMIT_TAG
       when: never # Do not run this job when a tag is created manually
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run this job when when commits are pushed to the default branch
   script:
-    - echo "Release $VERSION"
+    - echo "release $VERSION"
     - |
-      release-cli create --name "Release $VERSION" --tag-name v$VERSION \
+      release-cli create --name "release $VERSION" --tag-name v$VERSION \
       --description 'Created using the release-cli. $CI_COMMIT_TITLE' --ref $CI_COMMIT_SHA \
       --assets-link "{\"name\":\"${APPNAME}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${WIN_BINARY}\"}"
