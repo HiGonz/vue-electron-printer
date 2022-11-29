@@ -14,6 +14,7 @@ autoUpdater.autoDownload = true;
 
 autoUpdater.setFeedURL({
     provider: "generic",
+    channel: "latest",
     url: "http://gitlab.com/api/v4/projects/41372921/jobs/artifacts/master/raw/dist_electron/?job=build"
 });
 
@@ -49,6 +50,12 @@ autoUpdater.on('update-downloaded', function (info) {
         autoUpdater.quitAndInstall();
     }, 1000);
 });
+
+autoUpdater.checkForUpdates();
+
+function sendStatusToWindow(message) {
+    console.log(message);
+}
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
