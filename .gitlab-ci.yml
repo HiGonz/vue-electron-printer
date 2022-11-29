@@ -5,12 +5,7 @@ stages:
   - build
   
 build:
-  image: electronuserland/builder
   stage: build
-  appId: com.xticket.PrintService
-  win:
-    target:
-      - nsis
   artifacts:
     paths:
       - $CI_PROJECT_DIR/dist_electron/*.*
