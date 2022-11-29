@@ -5,6 +5,7 @@ stages:
   - build
   
 build:
+  image: electronuserland/builder
   stage: build
   artifacts:
     paths:
