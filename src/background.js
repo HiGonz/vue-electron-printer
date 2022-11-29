@@ -5,13 +5,50 @@
 import { app, protocol, BrowserWindow, dialog, Tray, nativeImage, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-import axios from 'axios'
 const {PosPrinter} = require("electron-pos-printer");
 import moment from 'moment'
 const { autoUpdater } = require('electron-updater');
 
-axios.defaults.baseURL = 'http://localhost:3333/api/v2/'
-axios.defaults.headers.common['accept-encoding'] = '*'
+autoUpdater.requestHeaders = { "PRIVATE-TOKEN": "glpat-_w2dxuKz3ZzBz3fUZmzR" };
+autoUpdater.autoDownload = true;
+
+autoUpdater.setFeedURL({
+    provider: "generic",
+    url: "http://gitlab.com/api/v4/projects/41372921/jobs/artifacts/master/raw/dist/?job=build"
+});
+
+autoUpdater.on('checking-for-update', function () {
+    sendStatusToWindow('Checking for update...');
+});
+
+autoUpdater.on('update-available', function (info) {
+    sendStatusToWindow('Update available.');
+});
+
+autoUpdater.on('update-not-available', function (info) {
+    sendStatusToWindow('Update not available.');
+});
+
+autoUpdater.on('error', function (err) {
+    sendStatusToWindow('Error in auto-updater.');
+});
+
+autoUpdater.on('download-progress', function (progressObj) {
+    let log_message = "Download speed: " + progressObj.bytesPerSecond;
+    log_message = log_message + ' - Downloaded ' + parseInt(progressObj.percent) + '%';
+    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+    sendStatusToWindow(log_message);
+});
+
+autoUpdater.on('update-downloaded', function (info) {
+    sendStatusToWindow('Update downloaded; will install in 1 seconds');
+});
+
+autoUpdater.on('update-downloaded', function (info) {
+    setTimeout(function () {
+        autoUpdater.quitAndInstall();
+    }, 1000);
+});
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
