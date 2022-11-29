@@ -14,7 +14,7 @@ autoUpdater.autoDownload = true;
 
 autoUpdater.setFeedURL({
     provider: "generic",
-    url: "http://gitlab.com/api/v4/projects/41372921/jobs/artifacts/master/raw/dist/?job=build"
+    url: "http://gitlab.com/api/v4/projects/41372921/jobs/artifacts/master/raw/dist_electron/?job=build"
 });
 
 autoUpdater.on('checking-for-update', function () {
