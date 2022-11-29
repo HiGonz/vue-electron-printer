@@ -7,9 +7,15 @@ stages:
 build:
   image: electronuserland/builder
   stage: build
+  appId: com.xticket.PrintService
+  win:
+    target:
+      - nsis
   artifacts:
     paths:
       - $CI_PROJECT_DIR/dist_electron/*.*
   script:
     - sed "s/0.0.0/${VERSION_ID}/g" package.json > _package.json && mv _package.json package.json
     - npm install && npm run electron:build
+    - ls -la $CI_PROJECT_DIR/dist_electron
+  
