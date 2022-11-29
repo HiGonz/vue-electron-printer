@@ -6,14 +6,8 @@ import { app, protocol, BrowserWindow, dialog, Tray, nativeImage, Menu } from 'e
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const {PosPrinter} = require("electron-pos-printer");
+import updater from './updater'
 import moment from 'moment'
-const electron = require('electron')
-// The current version of your app.
-const APP_VERSION = require('../package.json').version
-
-// The url that the application is going to query for new release
-const AUTO_UPDATE_URL =
-  'https://api.update.rocks/update/github.com/HiGonz/vue-electron-printer/stable/' + process.platform + '/' + APP_VERSION
 
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -26,43 +20,6 @@ const schema = {
 		default: 'POS-80C'
 	}
 };
-
-electron.autoUpdater.on(
-  'error',
-  (err) => console.error(`Error al actualizar: ${err.message}`))
-
-electron.autoUpdater.on(
-  'checking-for-update',
-  () => console.log('Buscando actualizaciones...'))
-
-electron.autoUpdater.on(
-  'update-available',
-  () => console.log('Una nueva actualización está disponible'))
-
-electron.autoUpdater.on(
-  'update-not-available',
-  () => console.log('No hay actualizaciones disponibles'))
-
-// Ask the user if he wants to update if update is available
-electron.autoUpdater.on(
-  'update-downloaded',
-  (event, releaseNotes, releaseName) => {
-    dialog.showMessageBox(window, {
-      type: 'question',
-      buttons: ['Actualizar', 'Cancel'],
-      defaultId: 0,
-      message: `Version ${releaseName} disponible, ¿Instalar ahora?`,
-      title: 'Actualización disponible'
-    }, response => {
-      if (response === 0) {
-        electron.autoUpdater.quitAndInstall()
-      }
-    })
-  }
-)
-
-electron.autoUpdater.setFeedURL(AUTO_UPDATE_URL)
-electron.autoUpdater.checkForUpdates()
 
 const store = new Store({schema});
 
@@ -229,6 +186,7 @@ app.on('ready', async () => {
       console.error('Vue Devtools failed to install:', e.toString())
     }
   }
+  updater.init()
   createWindow()
 })
 
@@ -251,13 +209,6 @@ if (isDevelopment) {
     })
   }
 }
-
-autoUpdater.on('update-available', () => {
-  win.webContents.send('update_available');
-});
-autoUpdater.on('update-downloaded', () => {
-  win.webContents.send('update_downloaded');
-});
 
 function printSMS(type, dataPrint) {
   const options = {
