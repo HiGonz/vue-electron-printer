@@ -262,7 +262,7 @@ function printSMS(type, dataPrint) {
   const options = {
     preview: false,
     margin: '0 0 0 0',
-    copies: 2,
+    copies: 1,
     printerName: store.get('printerName'),
     timeOutPerLine: 1500,
     pageSize: '80mm',
@@ -377,7 +377,7 @@ function printEmail(type, dataPrint) {
   const options = {
     preview: false,
     margin: '0 0 0 0',
-    copies: 2,
+    copies: 1,
     printerName: store.get('printerName'),
     timeOutPerLine: 1500,
     pageSize: '80mm',
@@ -491,7 +491,7 @@ async function printSale(type, dataPrint) {
   const options = {
     preview: false,
     margin: '0 0 0 0',
-    copies: 2,
+    copies: 1,
     printerName: store.get('printerName'),
     timeOutPerLine: 1500,
     pageSize: '80mm',
