@@ -4,7 +4,7 @@ stages:
   - release-job
 
 build-job:
-  stage: build
+  stage: build-job
   image: electronuserland/builder:wine
   before_script:
     - npm install
@@ -29,7 +29,7 @@ variables:
   PACKAGE_REGISTRY_URL: '${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${APPNAME}/${VERSION}'
 
 upload-job:
-  stage: upload
+  stage: upload-job
   needs:
     - job: build-job
       artifacts: true
